@@ -1,18 +1,20 @@
 # Use the SDK image to build the app
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+WORKDIR /MyApp
 
-# Copy the .csproj and restore any dependencies (via dotnet restore)
-COPY ["MyApp/MyApp.csproj", "MyApp/"]
-RUN dotnet restore "MyApp/MyApp.csproj"
+COPY MyApp/*.csproj .
+RUN dotnet restore
 
-# Copy the rest of the app and build
-COPY . ./
-WORKDIR "/app/MyApp"
-RUN dotnet publish -c Release -o out
+COPY MyApp .
 
-# Use the runtime image to run the app
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
-WORKDIR /app
-COPY --from=build-env /app/MyApp/out .
+RUN dotnet publish -c Release -o /publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 as runtime
+
+WORKDIR /publish
+
+COPY --from=build-env /publish .
+
+EXPOSE 80
+
 ENTRYPOINT ["dotnet", "MyApp.dll"]
