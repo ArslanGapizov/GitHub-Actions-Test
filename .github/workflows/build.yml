@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2s
+      uses: actions/checkout@v2
       
     - name: Convert repo name to lowercase
       id: repo-name-lowercase
