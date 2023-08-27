@@ -11,13 +11,17 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2s
+      
+    - name: Convert repo name to lowercase
+      id: repo-name-lowercase
+      run: echo "::set-output name=repo::$(echo ${{ github.repository }} | awk '{print tolower($0)}')"
 
     - name: Login to GitHub Docker Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
     - name: Build and push Docker image
       run: |
-        docker build -t docker.pkg.github.com/${{ github.repository }}/my-image:latest .
-        docker push docker.pkg.github.com/${{ github.repository }}/my-image:latest
+        docker build -t docker.pkg.github.com/${{ steps.repo-name-lowercase.outputs.repo }}/my-image:latest .
+        docker push docker.pkg.github.com/${{ steps.repo-name-lowercase.outputs.repo }}/my-image:latest
 
